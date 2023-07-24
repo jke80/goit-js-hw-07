@@ -1,6 +1,5 @@
 import { galleryItems } from "./gallery-items.js";
 // Change code below this line
-
 const galleryEl = document.querySelector(".gallery");
 
 const markup = galleryItems
@@ -18,7 +17,7 @@ const markup = galleryItems
 galleryEl.insertAdjacentHTML("beforeend", markup);
 
 galleryEl.addEventListener("click", onClick);
-
+//-----------------------------------------------------------------------------
 // function onClick(e) {
 //   e.preventDefault();
 
@@ -38,31 +37,64 @@ galleryEl.addEventListener("click", onClick);
 //     }
 //   }
 // }
+//-------------------------------------------------------------------------------
+// function onClick(e) {
+//   e.preventDefault();
 
-function onClick(e) {
-  e.preventDefault();
+//   if (!e.target.classList.contains("gallery__image")) return;
 
-  if (!e.target.classList.contains("gallery__image")) return;
+//   const instance = basicLightbox.create(
+//     `
+//       <img src="${e.target.dataset.source}" width="800" height="600">
+//   `,
+//     {
+//       onShow: () => {
+//         document.addEventListener("keydown", onKeyDown);
+//       },
+//       onClose: () => {
+//         document.removeEventListener("keydown", onKeyDown);
+//       },
+//     }
+//   );
 
+//   function onKeyDown(e) {
+//     if (e.code === "Escape") {
+//       instance.close();
+//     }
+//   }
+
+//   instance.show();
+// }
+//-----------------------------------------------------------------------------
+function onClick(event) {
+  event.preventDefault();
+
+  if (!event.target.classList.contains("gallery__image")) return;
+  createModal(event).show();
+}
+
+function createModal(event) {
   const instance = basicLightbox.create(
     `
-      <img src="${e.target.dataset.source}" width="800" height="600">
+      <img src="${event.target.dataset.source}" width="800" height="600">
   `,
     {
-      onShow: () => {
-        document.addEventListener("keydown", onKeyDown);
+      handler: null,
+      onShow(instance) {
+        this.handler = onKeyDown.bind(instance);
+        document.addEventListener("keydown", this.handler);
       },
-      onClose: () => {
-        document.removeEventListener("keydown", onKeyDown);
+      onClose() {
+        document.removeEventListener("keydown", this.handler);
       },
     }
   );
 
-  function onKeyDown(e) {
-    if (e.code === "Escape") {
-      instance.close();
-    }
-  }
+  return instance;
+}
 
-  instance.show();
+function onKeyDown(event) {
+  if (event.code === "Escape") {
+    this.close();
+  }
 }
